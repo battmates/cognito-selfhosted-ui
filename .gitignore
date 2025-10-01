@@ -1,0 +1,11 @@
+/vendor/
+/.env
+/.env.local
+/storage/codes/*
+/storage/refresh/*
+/storage/sessions/*
+/storage/cache/*
+/node_modules/
+/public/assets/css/app.css
+/public/assets/css/app.css.map
+/.phpunit.result.cache

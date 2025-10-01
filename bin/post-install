@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+$paths = [
+    __DIR__ . '/../storage/codes',
+    __DIR__ . '/../storage/refresh',
+    __DIR__ . '/../storage/sessions',
+    __DIR__ . '/../storage/cache',
+];
+
+foreach ($paths as $path) {
+    if (!is_dir($path)) {
+        mkdir($path, 0750, true);
+    }
+}

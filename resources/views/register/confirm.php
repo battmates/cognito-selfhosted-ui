@@ -1,0 +1,41 @@
+<header class="mb-6 text-center">
+    <h1 class="text-2xl font-semibold">Verify your email</h1>
+    <p class="mt-2 text-sm text-slate-500">Enter the verification code we sent to your email to activate your account.</p>
+</header>
+
+<?php if (!empty($success ?? '')): ?>
+    <div class="mb-4 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+        <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($errors ?? [])): ?>
+    <div class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <?php foreach (($errors ?? []) as $error): ?>
+            <p><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<form method="post" class="space-y-4">
+    <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <div>
+        <label for="username" class="mb-1 block text-sm font-medium">Email address</label>
+        <input id="username" name="username" type="email" required value="<?= htmlspecialchars($username ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
+    </div>
+    <div>
+        <label for="code" class="mb-1 block text-sm font-medium">Verification code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" required class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
+    </div>
+    <button type="submit" class="w-full rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-500">Verify account</button>
+</form>
+
+<form method="post" action="/register/resend" class="mt-4 text-center text-sm text-slate-500">
+    <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="username" value="<?= htmlspecialchars($username ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <button type="submit" class="text-indigo-600 hover:text-indigo-500">Resend verification code</button>
+</form>
+
+<p class="mt-6 text-center text-sm text-slate-500">
+    Ready to sign in? <a href="/oauth2/authorize" class="text-indigo-600 hover:text-indigo-500">Return to login</a>
+</p>
