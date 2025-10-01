@@ -198,7 +198,7 @@ final class RegistrationController
         unset($_SESSION[self::SESSION_NAMESPACE]['pending_username'], $_SESSION[self::SESSION_NAMESPACE]['pending_alias']);
         $_SESSION['_oauth2']['success'] = 'Your account is confirmed. You can sign in now.';
 
-        return new RedirectResponse('/oauth2/authorize');
+        return new RedirectResponse($this->buildAuthorizeRedirect($config));
     }
 
     public function resend(Request $request, Config $config, array $parameters): Response
@@ -226,6 +226,47 @@ final class RegistrationController
         }
 
         return new RedirectResponse('/register/confirm?username=' . urlencode($username));
+    }
+
+    private function buildAuthorizeRedirect(Config $config): string
+    {
+        $authRequest = $_SESSION['_oauth2']['request'] ?? null;
+
+        if (is_array($authRequest) && isset($authRequest['client_id'], $authRequest['redirect_uri'])) {
+            $query = http_build_query(array_filter([
+                'client_id' => $authRequest['client_id'] ?? null,
+                'redirect_uri' => $authRequest['redirect_uri'] ?? null,
+                'response_type' => $authRequest['response_type'] ?? 'code',
+                'scope' => $authRequest['scope'] ?? null,
+                'state' => $authRequest['state'] ?? null,
+                'code_challenge' => $authRequest['code_challenge'] ?? null,
+                'code_challenge_method' => $authRequest['code_challenge_method'] ?? null,
+                'prompt' => $authRequest['prompt'] ?? null,
+            ]));
+
+            return '/oauth2/authorize' . ($query ? '?' . $query : '');
+        }
+
+        $fallbackRedirect = $this->defaultRedirectUri($config);
+
+        $query = http_build_query(array_filter([
+            'client_id' => $config->get('cognito_client_id'),
+            'redirect_uri' => $fallbackRedirect,
+            'response_type' => 'code',
+            'scope' => 'openid',
+        ]));
+
+        return '/oauth2/authorize' . ($query ? '?' . $query : '');
+    }
+
+    private function defaultRedirectUri(Config $config): string
+    {
+        $allowed = $config->allowedRedirects();
+        if ($allowed !== []) {
+            return $allowed[0];
+        }
+
+        return (string) $config->get('app_url', '');
     }
 
     private function mapRegistrationError(AwsException $exception): string
