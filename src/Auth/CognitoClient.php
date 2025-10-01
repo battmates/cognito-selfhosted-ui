@@ -95,7 +95,7 @@ final class CognitoClient
     /**
      * @return array<string, mixed>
      */
-    public function signUp(string $username, string $password, string $email): array
+    public function signUp(string $username, string $password, string $email, array $attributes = []): array
     {
         $params = [
             'ClientId' => $this->clientId,
@@ -106,11 +106,50 @@ final class CognitoClient
             ],
         ];
 
+        foreach ($attributes as $name => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $params['UserAttributes'][] = ['Name' => $name, 'Value' => $value];
+        }
+
         if ($this->clientSecret) {
             $params['SecretHash'] = $this->secretHash($username);
         }
 
         return $this->client->signUp($params)->toArray();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function requiredAttributes(): array
+    {
+        static $required = null;
+
+        if ($required !== null) {
+            return $required;
+        }
+
+        try {
+            $response = $this->client->describeUserPool([
+                'UserPoolId' => $this->userPoolId,
+            ])->toArray();
+        } catch (AwsException) {
+            return $required = [];
+        }
+
+        $schema = $response['UserPool']['SchemaAttributes'] ?? [];
+        $required = [];
+
+        foreach ($schema as $attribute) {
+            if (!empty($attribute['Required']) && isset($attribute['Name'])) {
+                $required[] = (string) $attribute['Name'];
+            }
+        }
+
+        return $required;
     }
 
     public function confirmSignUp(string $username, string $code): void

@@ -11,12 +11,27 @@
     </div>
 <?php endif; ?>
 
+<?php include __DIR__ . '/../components/debug.php'; ?>
+
 <form method="post" class="space-y-4">
     <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <?php $requiredAttributes = $required_attributes ?? []; ?>
     <div>
         <label for="email" class="mb-1 block text-sm font-medium">Email address</label>
         <input id="email" name="email" type="email" required value="<?= htmlspecialchars($values['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
     </div>
+    <?php if (in_array('given_name', $requiredAttributes, true)): ?>
+        <div>
+            <label for="given_name" class="mb-1 block text-sm font-medium">First name</label>
+            <input id="given_name" name="given_name" type="text" required value="<?= htmlspecialchars($values['given_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
+        </div>
+    <?php endif; ?>
+    <?php if (in_array('family_name', $requiredAttributes, true)): ?>
+        <div>
+            <label for="family_name" class="mb-1 block text-sm font-medium">Last name</label>
+            <input id="family_name" name="family_name" type="text" required value="<?= htmlspecialchars($values['family_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
+        </div>
+    <?php endif; ?>
     <div>
         <label for="password" class="mb-1 block text-sm font-medium">Password</label>
         <input id="password" name="password" type="password" required class="w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring" />
